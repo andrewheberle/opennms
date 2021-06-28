@@ -54,4 +54,4 @@ sudo systemctl reload firewalld
 ----
 
 NOTE: The core service user must be able to send ICMP echo requests.
-      During the setup the permissions for `net.ipv4.ping_group_range` are set permanently on boot in `/etc/sysctl.d/99-opennms-non-root-icmp.conf` 
+      During setup, the permissions for `net.ipv4.ping_group_range` are set permanently on boot in `/etc/sysctl.d/99-opennms-non-root-icmp.conf`. 
