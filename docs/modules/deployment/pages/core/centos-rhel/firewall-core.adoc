@@ -1,4 +1,4 @@
-.Enable Masquerade to allow port-forwarding
+.Enable Masquerade to allow port forwarding
 [source, console]
 ----
 sudo firewall-cmd --add-masquerade
