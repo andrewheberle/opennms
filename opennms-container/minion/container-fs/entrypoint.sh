@@ -35,16 +35,26 @@ usage() {
     echo "-s: Initialize a keystore file with credentials in /keystore/scv.jce."
     echo "    Mount /keystore to your local system or a volume to save the keystore file."
     echo "    You can mount the keystore file to ${MINION_HOME}/etc/scv.jce and just use -f to start the Minion."
+    echo "-w: Create and write a keystore file using environment variables to /keystore/svc.jce."
+    echo "    Mount /keystore to your local system or a volume to save the resulting keystore file."
+    echp "    You can then use this keystore file when running the Minion using the -f option."
     echo "-f: Initialize and start OpenNMS Minion in foreground."
     echo "-h: Show this help."
     echo ""
 }
 
-useEnvCredentials(){
+useEnvCredentials() {
   echo "WARNING: Credentials can be exposed via docker inspect and log files. Please consider to use a keystore file."
   echo "         You can initialize a keystore file with the -s option."
   ${MINION_HOME}/bin/scvcli set opennms.http ${OPENNMS_HTTP_USER} ${OPENNMS_HTTP_PASS}
   ${MINION_HOME}/bin/scvcli set opennms.broker ${OPENNMS_BROKER_USER} ${OPENNMS_BROKER_PASS}
+}
+
+writeCredentials() {
+  useEnvCredentials
+
+  mkdir -p /keystore
+  cp ${MINION_HOME}/etc/scv.jce /keystore
 }
 
 setCredentials() {
@@ -131,10 +141,10 @@ initConfig() {
         sed -i "/^rmiServerHost/s/=.*/= 0.0.0.0/" ${MINION_HOME}/etc/org.apache.karaf.management.cfg
 
         # Set Minion location and connection to OpenNMS instance
-        echo "location = ${MINION_LOCATION}" > ${MINION_CONFIG}
-        echo "id = ${MINION_ID}" >> ${MINION_CONFIG}
-        echo "broker-url = ${OPENNMS_BROKER_URL}" >> ${MINION_CONFIG}
-        echo "http-url = ${OPENNMS_HTTP_URL}" >> ${MINION_CONFIG}
+        ( echo "location = ${MINION_LOCATION}"; \
+        echo "id = ${MINION_ID}" >> ${MINION_CONFIG}; \
+        echo "broker-url = ${OPENNMS_BROKER_URL}"; \
+        echo "http-url = ${OPENNMS_HTTP_URL}" ) > ${MINION_CONFIG}
 
         parseEnvironment
 
@@ -220,7 +230,7 @@ if [[ "${#}" == 0 ]]; then
 fi
 
 # Evaluate arguments for build script.
-while getopts csfh flag; do
+while getopts cswfh flag; do
     case ${flag} in
         c)
             useEnvCredentials
@@ -230,6 +240,9 @@ while getopts csfh flag; do
         s)
             setCredentials
             ;;
+        w)
+            writeCredentials
+            ;; 
         f)
             configure
             start
