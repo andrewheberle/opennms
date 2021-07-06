@@ -141,10 +141,10 @@ initConfig() {
         sed -i "/^rmiServerHost/s/=.*/= 0.0.0.0/" ${MINION_HOME}/etc/org.apache.karaf.management.cfg
 
         # Set Minion location and connection to OpenNMS instance
-        ( echo "location = ${MINION_LOCATION}"; \
-        echo "id = ${MINION_ID}" >> ${MINION_CONFIG}; \
-        echo "broker-url = ${OPENNMS_BROKER_URL}"; \
-        echo "http-url = ${OPENNMS_HTTP_URL}" ) > ${MINION_CONFIG}
+        echo "location = ${MINION_LOCATION}" > ${MINION_CONFIG}
+        echo "id = ${MINION_ID}" >> ${MINION_CONFIG}
+        echo "broker-url = ${OPENNMS_BROKER_URL}" >> ${MINION_CONFIG}
+        echo "http-url = ${OPENNMS_HTTP_URL}" >> ${MINION_CONFIG}
 
         parseEnvironment
 
